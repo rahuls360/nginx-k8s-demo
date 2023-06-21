@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment # k8s deployment creates pods (instances of containers) and ensures the spec mentioned below is maintained (declarative)
+spec:
+  selector:
+    matchLabels:
+      app: nginx-app # container name - used for ensure replica count is always maintained
+  replicas: 1 # no of pods to run
+  template:
+    metadata:
+      labels:
+        app: nginx-app # container name
+    spec:
+      containers:
+        - name: nginx-app # container name
+          image: learnistio/helloworld:1.0.0 # docker image name. Have this build already
+          imagePullPolicy: Never # Don't pull from remote docker registry during local testing
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service # a service exposes deployments/pods to other microservices in our cluster/external traffic
+spec:
+  selector:
+    app: nginx-app # container name
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 3000
